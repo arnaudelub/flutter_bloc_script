@@ -7,5 +7,9 @@
 - `-h help menu`
 - `-d ~/PATH/TO/FOLDER`
 - `-n name_of_the_feature`
+- `-f` to generate template for freezed_annotation
+
+### Execute
+`./flutter_block.sh -d ~/path/to/folder/ -n my_feature [-f]`
 
 #### Enjoy

@@ -1,6 +1,8 @@
 #! /bin/bash
 #shopt -s xpg_echo
-
+#########################
+# Created by ArnauDelub #
+#########################
 freezed=false
 while getopts "hfd:n:" opt; do
   case $opt in
@@ -29,6 +31,22 @@ if [ -z "${FEATURE}" ]; then
     echo "Missing the option -n for the name of the feature"
     exit 1
 fi
+
+feature=''
+delimiter=""
+if [[ $FEATURE == *"_"* ]]; then
+    delimiter="_"
+elif [[ $FEATURE == *"-"* ]]; then
+    delimiter="-"
+fi
+feat=$FEATURE
+arrIN=(${feat//$delimiter/ })
+
+for i in "${arrIN[@]}"; do
+    feature+="${i^}"
+done
+echo "Creating file with class baseName: $feature"
+
 bloc="$DIR${FEATURE}_bloc.dart"
 event="$DIR${FEATURE}_event.dart"
 state="$DIR${FEATURE}_state.dart"
@@ -36,24 +54,24 @@ cr=$'\n'
 
 if [[ ! freezed ]];then
 eventContent="
-part of '${FEATURE}_bloc.dart';\n\n@immutable\nabstract class ${FEATURE^}Event {}"
+part of '${FEATURE}_bloc.dart';\n\n@immutable\nabstract class ${feature}Event {}"
 stateContent="
 part of '${FEATURE}_bloc.dart';\n\n\
 @immutable\n\
-abstract class ${FEATURE^}State {}\n\
-class ${FEATURE^}Initial extends ${FEATURE^}State{}"
+abstract class ${feature}State {}\n\
+class ${feature}Initial extends ${feature}State{}"
 blocContent="import 'dart:async';\n\n"
 blocContent="${blocContent}import 'package:bloc/bloc.dart'\n"
 blocContent="${blocContent}import 'package:meta/meta.dart';\n\n"
 blocContent="${blocContent}part '${FEATURE}_event.dart'\n"
 blocContent="${blocContent}part '${FEATURE}_state.dart';\n\n"
-blocContent="${blocContent}class ${FEATURE^}Bloc extends Bloc<${FEATURE^}Event, ${FEATURE^}State>{\n"
+blocContent="${blocContent}class ${feature}Bloc extends Bloc<${feature}Event, ${feature}State>{\n"
 blocContent="${blocContent}\t@override\n"
-blocContent="${blocContent}\t${FEATURE^}State get initialState => ${FEATURE^}Initial();\n"
+blocContent="${blocContent}\t${feature}State get initialState => ${feature}Initial();\n"
 blocContent="${blocContent}\n"
 blocContent="${blocContent}\t@override\n"
-blocContent="${blocContent}\tStream<${FEATURE^}State> mapEventToState(\n"
-blocContent="${blocContent}\t\t${FEATURE^}Event event,\n"
+blocContent="${blocContent}\tStream<${feature}State> mapEventToState(\n"
+blocContent="${blocContent}\t\t${feature}Event event,\n"
 blocContent="${blocContent}\t) async* {\n"
 blocContent="${blocContent}\t\t//TODO implement\n"
 blocContent="${blocContent}\t}\n"
@@ -63,33 +81,38 @@ else
 eventContent="
 part of '${FEATURE}_bloc.dart';\n\n \
 @freezed\n \
-abstract class ${FEATURE^}Event wih _$${FEATURE^}Event { \n \
-\t const factory ${FEATURE^}Event.() = ;
+abstract class ${feature}Event with _\$${feature}Event { \n \
+\t const factory ${feature}Event.() = ;
 }"
 stateContent="
 part of '${FEATURE}_bloc.dart';\n\n \
 @freezed\n \
-abstract class ${FEATURE^}State wih _$${FEATURE^}State { \n \
-\t const factory ${FEATURE^}State.initial() = Initial;
+abstract class ${feature}State with _\$${feature}State { \n \
+\t const factory ${feature}State.initial() = Initial;
 }"
 blocContent="import 'dart:async';\n\n"
-blocContent="${blocContent}import 'package:freezed_annotation/freezed_annotation.dart';"
-blocContent="${blocContent}import 'package:bloc/bloc.dart'\n"
+blocContent="${blocContent}import 'package:freezed_annotation/freezed_annotation.dart';\n"
+blocContent="${blocContent}import 'package:bloc/bloc.dart';\n"
 blocContent="${blocContent}import 'package:meta/meta.dart';\n\n"
-blocContent="${blocContent}part '${FEATURE}_event.dart'\n"
+blocContent="${blocContent}part '${FEATURE}_event.dart';\n"
 blocContent="${blocContent}part '${FEATURE}_state.dart';\n\n"
-blocContent="${blocContent}class ${FEATURE^}Bloc extends Bloc<${FEATURE^}Event, ${FEATURE^}State>{\n"
+blocContent="${blocContent}part '${FEATURE}_bloc.freezed.dart';\n\n"
+blocContent="${blocContent}class ${feature}Bloc extends Bloc<${feature}Event, ${feature}State>{\n"
 blocContent="${blocContent}\t@override\n"
-blocContent="${blocContent}\t${FEATURE^}State get initialState => const ${FEATURE^}State.initial();\n"
+blocContent="${blocContent}\t${feature}State get initialState => const ${feature}State.initial();\n"
 blocContent="${blocContent}\n"
 blocContent="${blocContent}\t@override\n"
-blocContent="${blocContent}\tStream<${FEATURE^}State> mapEventToState(\n"
-blocContent="${blocContent}\t\t${FEATURE^}Event event,\n"
+blocContent="${blocContent}\tStream<${feature}State> mapEventToState(\n"
+blocContent="${blocContent}\t\t${feature}Event event,\n"
 blocContent="${blocContent}\t) async* {\n"
 blocContent="${blocContent}\t\t//TODO implement\n"
 blocContent="${blocContent}\t}\n"
 blocContent="${blocContent}}"
 fi
+echo "Creating ${event}_event.dart file"
 echo -e $eventContent > $event
+echo "Creating ${bloc}_bloc.dart file"
 echo -e $blocContent > $bloc
+echo "Creating ${state}_state.dart file"
 echo -e $stateContent > $state
+echo "Done!"

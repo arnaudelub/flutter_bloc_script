@@ -4,10 +4,13 @@
 # Created by ArnauDelub #
 #########################
 freezed=false
-while getopts "hfd:n:" opt; do
+injectable=false
+while getopts "hfid:n:" opt; do
   case $opt in
     f) freezed=True   ;;
+    i) injectable=True ;;
     h) echo "set flag -f to generate Bloc with freezed!"
+       echo "set flag -i to use injectable!"
        echo "set flag -d with the full path where you want to create the bloc"
        echo "set flag -n with the name of the feature"
        exit 1 ;;
@@ -62,9 +65,15 @@ abstract class ${feature}State {}\n\
 class ${feature}Initial extends ${feature}State{}"
 blocContent="import 'dart:async';\n\n"
 blocContent="${blocContent}import 'package:bloc/bloc.dart'\n"
-blocContent="${blocContent}import 'package:meta/meta.dart';\n\n"
+blocContent="${blocContent}import 'package:meta/meta.dart';\n"
+if [[ injectable ]]; then
+    blocContent="${blocContent}import 'package:injectable/injectable.dart';\n\n"
+fi
 blocContent="${blocContent}part '${FEATURE}_event.dart'\n"
 blocContent="${blocContent}part '${FEATURE}_state.dart';\n\n"
+if [[ injectable ]]; then
+    blocContent="${blocContent}@injectable\n"
+fi
 blocContent="${blocContent}class ${feature}Bloc extends Bloc<${feature}Event, ${feature}State>{\n"
 blocContent="${blocContent}\t@override\n"
 blocContent="${blocContent}\t${feature}State get initialState => ${feature}Initial();\n"
@@ -82,21 +91,27 @@ eventContent="
 part of '${FEATURE}_bloc.dart';\n\n \
 @freezed\n \
 abstract class ${feature}Event with _\$${feature}Event { \n \
-\t const factory ${feature}Event.() = ;
+\t const factory ${feature}Event.() = ;\n \
 }"
 stateContent="
 part of '${FEATURE}_bloc.dart';\n\n \
 @freezed\n \
 abstract class ${feature}State with _\$${feature}State { \n \
-\t const factory ${feature}State.initial() = Initial;
+\t const factory ${feature}State.initial() = Initial;\n \
 }"
 blocContent="import 'dart:async';\n\n"
 blocContent="${blocContent}import 'package:freezed_annotation/freezed_annotation.dart';\n"
 blocContent="${blocContent}import 'package:bloc/bloc.dart';\n"
-blocContent="${blocContent}import 'package:meta/meta.dart';\n\n"
+blocContent="${blocContent}import 'package:meta/meta.dart';\n"
+if [[ injectable ]]; then
+    blocContent="${blocContent}import 'package:injectable/injectable.dart';\n\n"
+fi
 blocContent="${blocContent}part '${FEATURE}_event.dart';\n"
 blocContent="${blocContent}part '${FEATURE}_state.dart';\n\n"
 blocContent="${blocContent}part '${FEATURE}_bloc.freezed.dart';\n\n"
+if [[ injectable ]]; then
+    blocContent="${blocContent}@injectable\n"
+fi
 blocContent="${blocContent}class ${feature}Bloc extends Bloc<${feature}Event, ${feature}State>{\n"
 blocContent="${blocContent}\t@override\n"
 blocContent="${blocContent}\t${feature}State get initialState => const ${feature}State.initial();\n"

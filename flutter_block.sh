@@ -75,8 +75,7 @@ if [[ injectable ]]; then
     blocContent="${blocContent}@injectable\n"
 fi
 blocContent="${blocContent}class ${feature}Bloc extends Bloc<${feature}Event, ${feature}State>{\n"
-blocContent="${blocContent}\t@override\n"
-blocContent="${blocContent}\t${feature}State get initialState => ${feature}Initial();\n"
+blocContent="${blocContent}\t${feature}Bloc():super(const ${feature}State.initial());\n"
 blocContent="${blocContent}\n"
 blocContent="${blocContent}\t@override\n"
 blocContent="${blocContent}\tStream<${feature}State> mapEventToState(\n"
@@ -113,8 +112,7 @@ if [[ injectable ]]; then
     blocContent="${blocContent}@injectable\n"
 fi
 blocContent="${blocContent}class ${feature}Bloc extends Bloc<${feature}Event, ${feature}State>{\n"
-blocContent="${blocContent}\t@override\n"
-blocContent="${blocContent}\t${feature}State get initialState => const ${feature}State.initial();\n"
+blocContent="${blocContent}\t${feature}Bloc():super(const ${feature}State.initial());\n"
 blocContent="${blocContent}\n"
 blocContent="${blocContent}\t@override\n"
 blocContent="${blocContent}\tStream<${feature}State> mapEventToState(\n"
